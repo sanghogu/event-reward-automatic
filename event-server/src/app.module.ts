@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {MongooseModule} from "@nestjs/mongoose";
 import { HealthController } from './health/health.controller';
+import { EventModule } from './event/event.module';
 import Joi from "joi";
 
 @Module({
@@ -29,6 +30,7 @@ import Joi from "joi";
         authSource: 'admin'
       })
     }),
+    EventModule,
   ],
   controllers: [HealthController],
   providers: [],

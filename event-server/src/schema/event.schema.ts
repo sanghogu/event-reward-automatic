@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import {EventStatus} from "../common/enums/event-status.enum";
-import {EventCondition} from "../common/event-condition";
+import {EventCondition} from "../event/interface/event-condition";
 
 export type EventDocument = Event & Document;
 
