@@ -4,6 +4,7 @@ import {ConfigModule, ConfigService} from "@nestjs/config";
 import * as Joi from 'joi';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
+import { HealthController } from './health/health.controller';
 
 @Module({
   imports: [
@@ -34,5 +35,6 @@ import { AuthModule } from './auth/auth.module';
     AuthModule
   ],
   providers: [],
+  controllers: [HealthController],
 })
 export class AppModule {}
