@@ -3,7 +3,8 @@ import {ConfigModule, ConfigService} from "@nestjs/config";
 import {MongooseModule} from "@nestjs/mongoose";
 import { HealthController } from './health/health.controller';
 import { EventModule } from './event/event.module';
-import Joi from "joi";
+import * as Joi from "joi";
+import {GatewayModule} from "./gateway/gateway.module";
 
 @Module({
   imports: [
@@ -31,8 +32,10 @@ import Joi from "joi";
       })
     }),
     EventModule,
+    GatewayModule,
   ],
   controllers: [HealthController],
   providers: [],
+  exports: [EventModule]
 })
 export class AppModule {}

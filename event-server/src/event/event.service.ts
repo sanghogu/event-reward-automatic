@@ -4,6 +4,7 @@ import {Model, Types} from "mongoose";
 import {Event, EventDocument} from "../schema/event.schema";
 import {CreateEventDto} from "./dto/create-event.dto";
 import {EventStatus} from "../common/enums/event-status.enum";
+import {UpdateEventDto} from "./dto/update-event.dto";
 
 @Injectable()
 export class EventService {
@@ -38,7 +39,29 @@ export class EventService {
         if (!event) {
             throw new NotFoundException(`ID ${id} not found`);
         }
+
         return event;
+    }
+
+    async update(id: string, updateEventDto: UpdateEventDto): Promise<EventDocument> {
+        const eventDataToUpdate = { ...updateEventDto };
+        let startDate, endDate;
+        if (updateEventDto.startDate) {
+            startDate = new Date(updateEventDto.startDate);
+        }
+        if (updateEventDto.endDate) {
+            endDate = new Date(updateEventDto.endDate);
+        }
+
+        const updatedEvent = await this.eventModel
+            .findByIdAndUpdate(id, {
+                ...eventDataToUpdate, startDate, endDate
+            }, { new: true })
+            .exec();
+        if (!updatedEvent) {
+            throw new NotFoundException(`ID ${id} not found`);
+        }
+        return updatedEvent;
     }
 
 }
