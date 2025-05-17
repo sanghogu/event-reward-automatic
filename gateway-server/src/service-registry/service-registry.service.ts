@@ -2,7 +2,6 @@ import {Injectable, InternalServerErrorException, Logger, OnModuleInit} from '@n
 import {
     RegisteredServiceConfig,
     RoutePermission,
-    ServiceHealthStatus,
     staticServiceRegistry
 } from "./service-registry.config";
 import {Request} from "express";
@@ -23,11 +22,6 @@ export class ServiceRegistryService implements OnModuleInit {
             ...serviceConfig,
             id: `default-${serviceConfig.name}-${index}-${serviceConfig.url.replace(/[^a-zA-Z0-9]/g, '')}`,
             registeredAt: new Date(),
-            healthStatus: { // 기본적으로 UNKNOWN 또는 HEALTHY로 시작할 수 있음
-                status: 'HEALTHY', // 초기에는 HEALTHY로 가정, health check 로직이 업데이트
-                lastSeen: new Date(),
-                consecutiveFailures: 0,
-            } as ServiceHealthStatus,
         }));
         this.activeServices.push(...defaultServices);
         this.logger.log(`${defaultServices.length} 기본 라우팅 경로 딩 완료`);
@@ -45,7 +39,7 @@ export class ServiceRegistryService implements OnModuleInit {
             requestPath = '/' + requestPath;
         }
 
-        const healthyServices = this.activeServices.filter(s => s.healthStatus?.status === 'HEALTHY');
+        const healthyServices = this.activeServices;
         if (healthyServices.length === 0 && this.activeServices.length > 0) {
             this.logger.warn("가용 서비스가 없습니다.");
         }
@@ -86,39 +80,4 @@ export class ServiceRegistryService implements OnModuleInit {
     }
 
 
-    //라우팅 해제할때
-    public unregisterService(serviceId: string): boolean {
-        const initialLength = this.activeServices.length;
-        this.activeServices = this.activeServices.filter(s => s.id !== serviceId);
-        const success = this.activeServices.length < initialLength;
-        if (success) {
-            this.logger.log(`Service with ID [${serviceId}] unregistered.`);
-        } else {
-            this.logger.warn(`Service with ID [${serviceId}] not found for unregistration.`);
-        }
-        return success;
-    }
-
-    //서비스 상태 업뎃
-    public updateHealthStatus(serviceId: string, status: 'HEALTHY' | 'UNHEALTHY') {
-        const service = this.activeServices.find(s => s.id === serviceId);
-        if (service && service.healthStatus) {
-            service.healthStatus.status = status;
-            service.healthStatus.lastSeen = new Date();
-            if (status === 'HEALTHY') {
-                service.healthStatus.consecutiveFailures = 0;
-            } else {
-                service.healthStatus.consecutiveFailures = (service.healthStatus.consecutiveFailures || 0) + 1;
-            }
-            this.logger.log(`Health status for service ID [${serviceId}] updated to ${status}. Failures: ${service.healthStatus.consecutiveFailures}`);
-        }
-    }
-
-    public getServiceById(serviceId: string): RegisteredServiceConfig | undefined {
-        return this.activeServices.find(s => s.id === serviceId);
-    }
-
-    public getAllServices(): RegisteredServiceConfig[] {
-        return [...this.activeServices];
-    }
 }
