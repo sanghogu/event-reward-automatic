@@ -1,4 +1,4 @@
-import { Role } from '../common/enums/role.enum';
+import {Role} from '../common/enums/role.enum';
 
 //라우팅 타입
 export interface RoutePermission {
@@ -34,6 +34,20 @@ export const staticServiceRegistry = (): ServiceConfig[] => [
             { path: '/users/me', method: 'GET', roles: [Role.USER, Role.OPERATOR, Role.AUDITOR, Role.ADMIN] }, //인증된 모든 사용자
             { path: '/users/:username', method: 'GET', roles: [Role.ADMIN] }, // 또는 본인 확인 로직 추가
             { path: '/users/:username/roles', method: 'PUT', roles: [Role.ADMIN] },
+        ],
+        defaultRoles: [Role.ADMIN], //기본적으로 ADMIN만 허용 (위 permissions에 없으면)
+    },
+    {
+        name: 'EventService',
+        url: process.env.DEFAULT_EVENT_SERVICE_URL!,
+        prefix: '/event-service', //auth 로 시작하는 url은 기본적으로 여기로
+        permissions: [
+            { path: '/events', method: 'POST', roles: [Role.ADMIN, Role.OPERATOR] },
+            { path: '/events', method: 'GET', roles: [Role.ADMIN, Role.OPERATOR] },
+            { path: '/events/:id', method: 'GET', roles: [Role.ADMIN, Role.OPERATOR] },
+            { path: '/events/:id', method: 'PUT', roles: [Role.ADMIN, Role.OPERATOR] },
+            { path: '/rewards', method: 'POST', roles: [Role.ADMIN, Role.OPERATOR] },
+            { path: '/events/:id', method: 'PUT', roles: [Role.ADMIN, Role.OPERATOR] },
         ],
         defaultRoles: [Role.ADMIN], //기본적으로 ADMIN만 허용 (위 permissions에 없으면)
     },
