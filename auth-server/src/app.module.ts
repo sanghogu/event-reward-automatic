@@ -3,7 +3,6 @@ import { UserModule } from './user/user.module';
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import * as Joi from 'joi';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
