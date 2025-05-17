@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import {CreateUserDto} from "../auth/dto/create-user.dto";
 import {UserService} from "./user.service";
-import {RolesGuard} from "../auth/roles.guard";
+import {RolesGuard} from "../common/guards/roles.guard";
 import {Roles} from "../common/decorators/roles.decorator";
 import {Role} from "../common/enums/role.enum";
 import {Response} from "express";
