@@ -38,7 +38,7 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy, 'access'){
                 throw new BadRequestException('Invalid user id');
             }
 
-            return payload;
+            return {userId, username: payload['username'], roles: payload['roles'] as string[]};
         } catch (e) {
             console.error(e);
             if (e instanceof BadRequestException) {

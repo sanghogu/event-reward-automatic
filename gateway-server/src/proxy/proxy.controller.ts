@@ -26,7 +26,7 @@ export class ProxyController {
     async proxyRequest(@Req() req: Request & {user:any}, @Res() res: Response) {
         const { originalUrl, method, body, headers, user } = req; // user는 JwtAuthGuard에 의해 추가됨
 
-        this.logger.log(`Proxy Guard pass hit! METHOD: ${method}, URL: ${originalUrl}`);
+        this.logger.log(`Proxy Guard pass hit! METHOD: ${method}, URL: ${originalUrl}, ${JSON.stringify(user)}`);
 
         //가드가 이미 신뢰하는것만 패스했으니, 여기서는 서비스 라우팅만함
         const { service, servicePath } = this.serviceRegistry.findServiceAndPermissionForRequest(req);
@@ -42,10 +42,8 @@ export class ProxyController {
         const downstreamHeaders: Record<string, any> = { ...headers };
         delete downstreamHeaders.host;
         delete downstreamHeaders['content-length'];
-
-        /**
-         * 서비스 모듈에서 jwt 말고 유저 시퀀스 값을 받는다면 적용
         delete downstreamHeaders.authorization; // 기존 Authorization 헤더는 제거
+
         if (user && user.userId) {
             downstreamHeaders['x-user-id'] = user.userId;
             if (user.roles) {
@@ -55,7 +53,6 @@ export class ProxyController {
         } else {
             this.logger.debug('Forwarding request (likely public) without X-User-* headers from JWT.');
         }
-         **/
         this.logger.debug(`Forwarding with headers: ${JSON.stringify(downstreamHeaders)}`);
 
 

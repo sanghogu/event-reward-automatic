@@ -53,8 +53,6 @@ export class ServiceRegistryService implements OnModuleInit {
                 if (service.permissions) {
                     for (const perm of service.permissions) {
 
-                        this.logger.log(`ㅇㅇㅇㅇㅇㅇㅇ ${perm.path}, ${perm.method}, currentMethod: ${method}`)
-
                         if (perm.path === servicePath && (perm.method === 'ALL' || perm.method === method)) {
                             this.logger.debug(
                                 `Matched specific permission for ${method} ${originalUrl} -> ${service.name}${servicePath}: roles ${perm.roles.join(',')}`,

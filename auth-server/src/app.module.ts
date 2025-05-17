@@ -5,6 +5,7 @@ import * as Joi from 'joi';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { HealthController } from './health/health.controller';
+import { GatewayModule } from './gateway/gateway.module';
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { HealthController } from './health/health.controller';
       })
     }),
     UserModule,
-    AuthModule
+    AuthModule,
+    GatewayModule
   ],
   providers: [],
   controllers: [HealthController],

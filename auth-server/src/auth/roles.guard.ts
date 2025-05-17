@@ -1,4 +1,4 @@
-import {CanActivate, ExecutionContext, ForbiddenException, Injectable} from "@nestjs/common";
+import {CanActivate, ExecutionContext, ForbiddenException, Injectable, Logger} from "@nestjs/common";
 import {Reflector} from "@nestjs/core";
 import {ROLES_KEY} from "../common/decorators/roles.decorator";
 
@@ -6,10 +6,15 @@ import {ROLES_KEY} from "../common/decorators/roles.decorator";
 @Injectable()
 export class RolesGuard implements CanActivate {
 
+    private logger = new Logger(RolesGuard.name);
+
     constructor(private reflector: Reflector) {
     }
 
     canActivate(context: ExecutionContext): boolean{
+
+        this.logger.log("RolesGuard canActivate called.");
+
         const requireRoles = this.reflector.getAllAndOverride(ROLES_KEY, [
             context.getHandler(),
             context.getClass()

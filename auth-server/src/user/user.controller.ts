@@ -14,11 +14,11 @@ import {
 } from '@nestjs/common';
 import {CreateUserDto} from "../auth/dto/create-user.dto";
 import {UserService} from "./user.service";
-import {JwtGuard} from "../auth/jwt.guard";
 import {RolesGuard} from "../auth/roles.guard";
 import {Roles} from "../common/decorators/roles.decorator";
 import {Role} from "../common/enums/role.enum";
 import {Response} from "express";
+import {GatewayGuard} from "../gateway/gateway.guard";
 
 @Controller('users')
 export class UserController {
@@ -37,15 +37,15 @@ export class UserController {
         return this.userService.create(createUserDto);
     }
 
-    @UseGuards(JwtGuard) // Auth 서버가 직접 토큰 검증 시
+    @UseGuards(GatewayGuard)
     @Get('me')
-    getProfile(@Request() req) { // req.user는 Auth 서버의 JwtStrategy에 의해 채워짐
+    getProfile(@Request() req) {
         const { passwordHash, __v, ...userProfile } = req.user.toObject(); // req.user가 UserDocument 인스턴스라고 가정
         return userProfile;
     }
 
     // ADMIN만 사용자명으로 조회 가능
-    @UseGuards(JwtGuard, RolesGuard)
+    @UseGuards(GatewayGuard, RolesGuard)
     @Roles(Role.ADMIN)
     @Get(':username')
     async getProfileByUsername(
@@ -69,7 +69,7 @@ export class UserController {
         }
     }
     // ADMIN만 사용자 역할 변경 가능
-    @UseGuards(JwtGuard, RolesGuard)
+    @UseGuards(GatewayGuard, RolesGuard)
     @Roles(Role.ADMIN)
     @Put(':username/roles')
     @HttpCode(HttpStatus.OK)
