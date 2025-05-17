@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {MongooseModule} from "@nestjs/mongoose";
 import { HealthController } from './health/health.controller';
@@ -32,7 +30,7 @@ import Joi from "joi";
       })
     }),
   ],
-  controllers: [AppController, HealthController],
-  providers: [AppService],
+  controllers: [HealthController],
+  providers: [],
 })
 export class AppModule {}

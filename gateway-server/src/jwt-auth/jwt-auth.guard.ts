@@ -1,46 +1,53 @@
 
-import { Injectable, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import {Injectable, ExecutionContext, UnauthorizedException, Logger, NotFoundException} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Reflector } from '@nestjs/core';
 import {Role} from "../common/enums/role.enum";
-import {ROLES_KEY} from "../common/decorators/roles.decorator";
+import {ServiceRegistryService} from "../service-registry/service-registry.service";
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
-    constructor(private reflector: Reflector) {
+export class JwtAuthGuard extends AuthGuard('access') {
+    private readonly logger = new Logger(JwtAuthGuard.name);
+
+    constructor(
+        private readonly serviceRegistryService: ServiceRegistryService,
+    ) {
         super();
     }
 
-    canActivate(context: ExecutionContext) {
-        //@Roles(Role.PUBLIC) 데코레이터가 있는지 확인 있으면 인증패스
-        const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
-            context.getHandler(),
-            context.getClass(),
-        ]);
+    async canActivate(context: ExecutionContext): Promise<boolean> {
 
-        //public role 은 바로 건너뜀
-        if (requiredRoles && requiredRoles.includes(Role.PUBLIC)) {
+        const request = context.switchToHttp().getRequest();
+
+        this.logger.log(`JwtAuthGuard hit: METHOD: ${request.method}, URL: ${request.originalUrl}`);
+        const { permission } = this.serviceRegistryService.findServiceAndPermissionForRequest(request);
+
+        //서비스가 없다면 404
+        if(permission === undefined) {
+            throw new NotFoundException(`서비스 찾지못했습니다. jwt guard: ${request.method} ${request.originalUrl}.`);
+        }
+
+        //필요권한 퍼블릭이면 패스
+        if (permission.roles.includes(Role.PUBLIC)) {
             return true;
         }
 
-        return super.canActivate(context);
+        //그외는 검증 이어감
+        return super.canActivate(context) as Promise<boolean>;
     }
 
     handleRequest(err, user, info, context: ExecutionContext) {
-        const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
-            context.getHandler(),
-            context.getClass(),
-        ]);
+        const request = context.switchToHttp().getRequest();
+        const { permission } = this.serviceRegistryService.findServiceAndPermissionForRequest(request);
 
-        //public role 은 바로 건너뜀
-        if (requiredRoles && requiredRoles.includes(Role.PUBLIC)) {
-            return user || null; // 토큰이 있으면 user 객체, 없으면 null
+        //퍼블릭은 패스
+        if (permission && permission.roles.includes(Role.PUBLIC)) {
+            return user;
         }
 
-
+        // 퍼블릭 아닌곳
         if (err || !user) {
-            throw err || new UnauthorizedException('User not authenticated or token invalid.');
+            throw err || new UnauthorizedException(`jwt 토큰 검증실패 요청: ${request.method}, ${request.originalUrl}. message: ${info?.message}`);
         }
-        return user; // 인증성공시컨트롤러 req.user 에서 참조
+        return user;
     }
 }

@@ -1,24 +1,60 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+
+import {BadRequestException, Injectable, Logger, UnauthorizedException} from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { ConfigService } from '@nestjs/config';
+import { Strategy } from 'passport-custom';
+import * as jwt from 'jsonwebtoken';
+import {ConfigService} from "@nestjs/config";
+import {JsonWebTokenError, TokenExpiredError} from "@nestjs/jwt";
 
 @Injectable()
-export class JwtAuthStrategy extends PassportStrategy(Strategy) {
+export class JwtAuthStrategy extends PassportStrategy(Strategy, 'access'){
+
+    private readonly logger = new Logger(JwtAuthStrategy.name);
+
     constructor(
-        private readonly configService: ConfigService
+        private readonly config: ConfigService,
     ) {
-        super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            ignoreExpiration: false,
-            secretOrKey: configService.get<string>('JWT_SECRET'),
-        });
+        super();
     }
 
-    async validate(payload: any) {
-        if (!payload || !payload.sub || !payload.username || !payload.roles) {
-            throw new UnauthorizedException('Invalid token payload');
+
+    async validate(req: Request) {
+
+        this.logger.log("JwtAuthStrategy validate called.")
+
+        try {
+            const userToken = req.headers['authorization']?.slice(7);
+
+            if (!userToken) {
+                throw new BadRequestException('There is no access token in header');
+            }
+
+            const secretKey = this.config.get<string>('JWT_SECRET');
+
+            const payload = jwt.verify(userToken, secretKey!);
+
+            const userId = payload['sub'];
+            if(typeof userId !== 'string') {
+                throw new BadRequestException('Invalid user id');
+            }
+
+            return payload;
+        } catch (e) {
+            console.error(e);
+            if (e instanceof BadRequestException) {
+                throw e
+            }
+            if (e instanceof SyntaxError) {
+                throw new BadRequestException('Invalid JSON object');
+            }
+            if (e instanceof TokenExpiredError) {
+                throw new UnauthorizedException('Access Token is expired');
+            }
+            if (e instanceof JsonWebTokenError) {
+                throw new BadRequestException(e.message);
+            } else {
+                throw new UnauthorizedException('Unauthorized for unknown error')
+            }
         }
-        return { userId: payload.sub, username: payload.username, roles: payload.roles };
     }
 }

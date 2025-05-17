@@ -1,10 +1,27 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { JwtAuthModule } from './jwt-auth/jwt-auth.module';
+import { ConfigModule } from "@nestjs/config";
+import { ServiceRegistryModule } from './service-registry/service-registry.module';
+import * as Joi from "joi";
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env.development'],
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
+      validationSchema: Joi.object({
+        JWT_SECRET: Joi.string().required(),
+        PROXY_HTTP_TIMEOUT_MS: Joi.number().required(),
+        DEFAULT_AUTH_SERVICE_URL: Joi.string().required(),
+        DEFAULT_EVENT_SERVICE_URL: Joi.string().required(),
+        NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
+      }),
+    }),
+    JwtAuthModule,
+    ServiceRegistryModule,
+  ],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
