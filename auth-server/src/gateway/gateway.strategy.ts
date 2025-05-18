@@ -29,7 +29,7 @@ export class GatewayStrategy extends PassportStrategy(Strategy, 'gateway') {
             }
             return user;
         } else {
-            throw new BadRequestException('Invalid user id');
+            throw new UnauthorizedException("유저 정보 없음")
         }
 
     }

@@ -84,3 +84,226 @@ Gateway는 인증된 사용자의 ID (`X-User-Id`)와 역할 (`X-User-Roles`)을
   docker-compose down
   ```
     * 데이터 볼륨까지 함께 삭제하려면 `-v` 옵션을 추가해주세요.
+
+### 기본 사용자 계정 (Auth Server 시작 시 자동 생성)
+
+`auth-server`가 처음 시작될 때 (해당 사용자가 DB에 존재하지 않을 경우) 다음과 같은 기본 계정들이 자동으로 생성됩니다.
+
+API 테스트 및 시스템에 사용할 수 있습니다.
+
+* **관리자 (Admin) 계정**:
+    * Username: `admin`
+    * Password: `admin`
+    * Role: `ADMIN`
+* **테스트 사용자 (Test User) 계정**:
+    * Username: `test`
+    * Password: `test`
+    * Role: `USER`
+
+## API 요청 방법
+
+모든 API 요청은 Gateway (`http://localhost:3000`)를 통해 각 서비스로 전달됩니다.
+* **Auth Service** 관련 API는 `/auth-service` 접두사를 가집니다. (예: `http://localhost:3000/auth-service/...`)
+* **Event Service** 관련 API는 `/event-service` 접두사를 가집니다. (예: `http://localhost:3000/event-service/...`)
+
+위 접두사는 gateway-server service-registry.config.ts 에 정적으로 선언돼있습니다.
+
+인증이 필요한 API는 `Authorization: Bearer <JWT_TOKEN>` 헤더를 포함해야 합니다.
+
+### Auth Service API (`/auth-service`)
+
+1.  **`POST /auth/login`**
+    * **설명**: 사용자 로그인 및 JWT 발급
+    * **필요 권한**: `PUBLIC`
+    * **요청 본문 (Request Body)**:
+        * `username` (string, 필수)
+        * `password` (string, 필수 - 클라이언트에서 전송하는 평문 비밀번호)
+    * **성공 응답 (`200 OK`)**:
+        * `access_token` (string): JWT
+        * `user` (object): 사용자 정보 (id, username, roles)
+    * **실패 응답**:
+        * `401 Unauthorized`: 자격 증명 실패
+
+2.  **`POST /users/register`**
+    * **설명**: 신규 사용자 회원 가입
+    * **필요 권한**: `ADMIN`
+    * **요청 본문 (Request Body)**:
+        * `username` (string, 필수, 3~30자)
+        * `password_hash` (string, 필수, 6~100자 - 클라이언트에서 전송하는 평문 비밀번호)
+        * `roles` (array of strings, 기본값: `[USER]`)
+    * **성공 응답 (`201 Created`)**:
+        * 생성된 사용자 정보 (비밀번호 제외)
+    * **실패 응답**:
+        * `400 Bad Request`: 유효성 검사 실패
+        * `409 Conflict`: 사용자 이름 중복
+
+3.  **`GET /users/me`**
+    * **설명**: 현재 로그인된 사용자 정보 조회
+    * **필요 권한**: `USER`, `OPERATOR`, `AUDITOR`, `ADMIN`
+    * **요청 파라미터**: 없음 (Gateway가 `Authorization` 헤더의 JWT를 검증하고 `X-User-Id` 헤더를 Auth Server로 전달)
+    * **성공 응답 (`200 OK`)**:
+        * 현재 로그인된 사용자 정보 (비밀번호 제외)
+    * **실패 응답**:
+        * `401 Unauthorized`: 유효하지 않은 토큰 또는 Gateway에서 사용자 ID 미전달
+
+4.  **`GET /users/:username`**
+    * **설명**: 특정 사용자 정보 조회
+    * **필요 권한**: `ADMIN`
+    * **경로 파라미터 (Path Parameters)**:
+        * `:username` (string, 필수): 조회할 사용자의 이름
+    * **성공 응답 (`200 OK`)**:
+        * 해당 사용자의 정보 (비밀번호 제외)
+    * **실패 응답**:
+        * `404 Not Found`: 해당 사용자가 존재하지 않음
+
+5.  **`PUT /users/:username/roles`**
+    * **설명**: 특정 사용자의 역할(권한) 업데이트
+    * **필요 권한**: `ADMIN`
+    * **경로 파라미터 (Path Parameters)**:
+        * `:username` (string, 필수): 역할을 업데이트할 사용자의 이름
+    * **요청 본문 (Request Body)**:
+        * `roles` (array of strings, 필수, Role Enum 값들)
+    * **성공 응답 (`200 OK`)**:
+        * 업데이트된 사용자 정보 (비밀번호 제외)
+    * **실패 응답**:
+        * `400 Bad Request`: 유효성 검사 실패 (잘못된 역할 등)
+        * `404 Not Found`: 해당 사용자가 존재하지 않음
+
+### Event Service API (`/event-service`)
+
+#### Events (`/events`)
+
+1.  **`POST /events`**
+    * **설명**: 새로운 이벤트 생성
+    * **필요 권한**: `ADMIN`, `OPERATOR`
+    * **요청 본문 (Request Body)**:
+        * `name` (string, 필수)
+        * `description` (string, 선택적)
+        * `condition` (object, 필수): 이벤트 조건 객체 (예: `{"type": "loginStreak", "days": 7}`)
+            * `type` (string, 필수): 조건 유형
+            * `[key:string]:any`: 조건 유형에 따른 추가 파라미터
+        * `startDate` (string, 필수, 형식: `YYYY-MM-DD`, 예: `2025-05-20`)
+        * `endDate` (string, 필수, 형식: `YYYY-MM-DD`, 예: `2025-06-01`)
+        * `status` (string, 선택적, Enum: `ACTIVE`, `INACTIVE`, `ENDED`, 기본값: `ACTIVE`)
+        * `isActive` (boolean, 선택적, 기본값: `true`)
+    * **성공 응답 (`201 Created`)**:
+        * 생성된 이벤트 정보
+
+2.  **`GET /events`**
+    * **설명**: 전체 이벤트 목록 조회
+    * **필요 권한**: `ADMIN`, `OPERATOR`
+    * **쿼리 파라미터 (Query Parameters)**:
+        * `status` (string, 선택적, Enum: `ACTIVE`, `INACTIVE`, `ENDED`): 이벤트 상태로 필터링
+        * `isActive` (boolean, 선택적, 기본값: `true`): 활성 상태로 필터링
+    * **성공 응답 (`200 OK`)**:
+        * 이벤트 정보 배열 (각 이벤트는 `eventRewards` 필드를 통해 연결된 보상 목록 포함 가능)
+
+3.  **`GET /events/:id`**
+    * **설명**: 특정 이벤트 상세 조회
+    * **필요 권한**: `ADMIN`, `OPERATOR`
+    * **경로 파라미터 (Path Parameters)**:
+        * `:id` (string, 필수, MongoDB ObjectId): 조회할 이벤트의 ID
+    * **성공 응답 (`200 OK`)**:
+        * 해당 이벤트 정보 (`eventRewards` 필드 포함 가능)
+    * **실패 응답**:
+        * `404 Not Found`: 해당 이벤트가 존재하지 않음
+
+4.  **`PUT /events/:id`**
+    * **설명**: 특정 이벤트 정보 업데이트
+    * **필요 권한**: `ADMIN`, `OPERATOR`
+    * **경로 파라미터 (Path Parameters)**:
+        * `:id` (string, 필수, MongoDB ObjectId): 업데이트할 이벤트의 ID
+    * **요청 본문 (Request Body)**: `POST /events`와 동일한 필드 (업데이트할 필드만 포함, 날짜 형식 `YYYY-MM-DD`)
+    * **성공 응답 (`200 OK`)**:
+        * 업데이트된 이벤트 정보
+    * **실패 응답**:
+        * `404 Not Found`: 해당 이벤트가 존재하지 않음
+
+#### Rewards (`/rewards`)
+
+5.  **`GET /rewards`**
+    * **설명**: 전체 보상 목록 조회 (특정 이벤트의 보상만 필터링 가능)
+    * **필요 권한**: `ADMIN`, `OPERATOR`
+    * **쿼리 파라미터 (Query Parameters)**:
+        * `eventId` (string, 선택적, MongoDB ObjectId 로 치환됨): 특정 이벤트 ID로 보상 필터링
+    * **성공 응답 (`200 OK`)**:
+        * 보상 정보 배열
+
+6.  **`POST /rewards`**
+    * **설명**: 새로운 보상 생성 및 이벤트에 연결
+    * **필요 권한**: `ADMIN`, `OPERATOR`
+    * **요청 본문 (Request Body)**:
+        * `eventId` (string, 필수, MongoDB ObjectId): 연결할 이벤트의 ID
+        * `name` (string, 필수)
+        * `type` (string, 필수, Enum: `POINT`, `ITEM`, `COUPON`, `CURRENCY`)
+        * `details` (object, 필수): 보상 상세 (예: `{"value": 100}` 또는 `{"itemId": "item123"}`)
+        * `quantity` (number, 필수, 최소값: 1): 지급 수량 혹은 포인트 1000점 등
+    * **성공 응답 (`201 Created`)**:
+        * 생성된 보상 정보
+
+7.  **`GET /rewards/:id`**
+    * **설명**: 특정 보상 상세 조회
+    * **필요 권한**: `ADMIN`, `OPERATOR`
+    * **경로 파라미터 (Path Parameters)**:
+        * `:id` (string, 필수, MongoDB ObjectId로 치환함): 조회할 보상의 ID
+    * **성공 응답 (`200 OK`)**:
+        * 해당 보상 정보
+    * **실패 응답**:
+        * `404 Not Found`: 해당 보상이 존재하지 않음
+
+8.  **`PUT /rewards/:id`**
+    * **설명**: 특정 보상 정보 업데이트
+    * **필요 권한**: `ADMIN`, `OPERATOR`
+    * **경로 파라미터 (Path Parameters)**:
+        * `:id` (string, 필수, MongoDB ObjectId 치환함): 업데이트할 보상의 ID
+    * **요청 본문 (Request Body)**: `POST /rewards`와 동일한 필드 (업데이트할 필드만 포함)
+    * **성공 응답 (`200 OK`)**:
+        * 업데이트된 보상 정보
+    * **실패 응답**:
+        * `404 Not Found`: 해당 보상이 존재하지 않음
+
+#### Reward Claims (`/reward-claims`)
+
+9.  **`GET /reward-claims`**
+    * **설명**: 보상 요청 내역 조회 (관리자/감사자용)
+    * **필요 권한**: `ADMIN`, `AUDITOR`
+    * **쿼리 파라미터 (Query Parameters)**:
+        * `userId` (string, 선택적, MongoDB ObjectId 치환됨): 특정 사용자의 요청 내역 필터링
+        * `eventId` (string, 선택적, MongoDB ObjectId 치환됨): 특정 이벤트의 요청 내역 필터링
+        * `status` (string, 선택적, Enum: `PENDING`, `APPROVED`, `REJECTED`, `PAID`, `FAILED`, `CANCELLED`): 특정 상태의 요청 내역 필터링
+    * **성공 응답 (`200 OK`)**:
+        * 필터링된 보상 요청 내역 배열
+    * **실패 응답**:
+        * `400 Bad Request`: `userId` | `eventId` 형식 오류
+
+10. **`POST /reward-claims`**
+    * **설명**: 사용자 보상 요청 생성 (특정 이벤트의 특정 보상에 대해)
+    * **필요 권한**: `USER`
+    * **요청 본문 (Request Body)**:
+        * `eventId` (string, 필수, MongoDB ObjectId 내부적으로 치환함)
+        * `rewardId` (string, 필수, MongoDB ObjectId 내부적으로 치환함)
+    * **성공 응답 (`201 Created`)**:
+        * 생성된 보상 요청 내역 정보
+    * **실패 응답**:
+        * `400 Bad Request`: 조건 미충족, 유효하지 않은 ID 등
+        * `404 Not Found`: 이벤트 또는 보상이 존재하지 않음
+        * `409 Conflict`: 이미 처리된 요청 (중복 요청)
+
+11. **`GET /reward-claims/me`**
+    * **설명**: 현재 로그인한 사용자의 보상 요청 내역 조회
+    * **필요 권한**: `USER`
+    * **쿼리 파라미터 (Query Parameters)**:
+        * `eventId` (string, 선택적, MongoDB ObjectId 내부적으로 치환함): 특정 이벤트로 필터링
+        * `status` (string, 선택적, Enum: `PENDING`, `APPROVED`, `REJECTED`, `PAID`, `FAILED`, `CANCELLED`): 특정 상태로 필터링
+    * **성공 응답 (`200 OK`)**:
+        * 조회된 보상 요청 내역 배열
+
+12. **`GET /reward-claims/:id`**
+    * **설명**: 특정 보상 요청 내역 조회
+    * **필요 권한**: `ADMIN`, `AUDITOR`
+    * **경로 파라미터 (Path Parameters)**:
+        * `:id` (string, 필수, MongoDB ObjectId 내부적으로 치환함): 조회할 보상 요청의 ID
+    * **성공 응답 (`200 OK`)**:
+        * 해당 보상 요청 내역 정보
+    * **실패 응답**:
+        * `404 Not Found`: 해당 요청 내역이 없거나 접근 권한 없음

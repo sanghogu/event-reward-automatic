@@ -1,10 +1,10 @@
 ### Login to Admin
-POST http://localhost:3000/auth-service/auth/login
+POST http://localhost:3003/auth-service/auth/login
 Content-Type: application/json
 
 {
-  "username": "test",
-  "password": "test"
+  "username": "admin",
+  "password": "admin"
 
 }
 
