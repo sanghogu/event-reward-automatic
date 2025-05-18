@@ -18,7 +18,7 @@ import { RewardClaimModule } from './reward-claim/reward-claim.module';
         DB_URI: Joi.string().required(),
         DB_USERNAME: Joi.string().required(),
         DB_PASSWORD: Joi.string().required(),
-        NODE_ENV: Joi.string().valid('development', 'production', 'test').required(),
+        NODE_ENV: Joi.string().valid('development', 'production', 'test').default("development"),
       }),
     }),
     MongooseModule.forRootAsync({

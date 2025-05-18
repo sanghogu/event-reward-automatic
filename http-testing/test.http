@@ -1,5 +1,5 @@
 ### Login to Admin
-POST http://localhost:3003/auth-service/auth/login
+POST http://localhost:3000/auth-service/auth/login
 Content-Type: application/json
 
 {
@@ -9,7 +9,7 @@ Content-Type: application/json
 }
 
 ### Create Event
-POST http://localhost:3003/event-service/events
+POST http://localhost:3000/event-service/events
 Content-Type: application/json
 Authorization: Bearer {{admin}}
 
@@ -24,7 +24,7 @@ Authorization: Bearer {{admin}}
 }
 
 ### Update Event
-PUT http://localhost:3003/event-service/events/6829cb711df4dc191b5532f5
+PUT http://localhost:3000/event-service/events/6829daca181a450c46e2620a
 Content-Type: application/json
 Authorization: Bearer {{admin}}
 
@@ -37,12 +37,12 @@ Authorization: Bearer {{admin}}
 }
 
 ### Create REward
-POST http://localhost:3003/event-service/rewards
+POST http://localhost:3000/event-service/rewards
 Content-Type: application/json
 Authorization: Bearer {{admin}}
 
 {
-  "eventId": "6829cb711df4dc191b5532f5",
+  "eventId": "6829db0f181a450c46e2621a",
   "name": "TEST_REWARDS",
   "type": "POINT",
   "details": {
@@ -52,7 +52,7 @@ Authorization: Bearer {{admin}}
 }
 
 ### Login to User
-POST http://localhost:3003/auth-service/auth/login
+POST http://localhost:3000/auth-service/auth/login
 Content-Type: application/json
 
 {
@@ -62,21 +62,16 @@ Content-Type: application/json
 }
 
 ### Create Claim
-POST http://localhost:3003/event-service/reward-claims
+POST http://localhost:3000/event-service/reward-claims
 Authorization: Bearer {{user}}
 Content-Type: application/json
 
 {
-  "eventId": "6829cb711df4dc191b5532f5",
-  "rewardId": "6829cbcd1df4dc191b5532fa"
+  "eventId": "6829db0f181a450c46e2621a",
+  "rewardId": "6829db2c181a450c46e26220"
 }
 
 ### Get Claim Me
-GET http://localhost:3003/event-service/reward-claims/me
+GET http://localhost:3003/event-service/reward-claims/me?eventId=6829db0f181a450c46e2621a
 Authorization: Bearer {{user}}
 Content-Type: application/json
-
-{
-  "eventId": "6829cb711df4dc191b5532f5",
-  "rewardId": "6829cbcd1df4dc191b5532fa"
-}

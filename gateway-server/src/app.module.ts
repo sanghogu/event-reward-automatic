@@ -15,7 +15,7 @@ import * as Joi from "joi";
         PROXY_HTTP_TIMEOUT_MS: Joi.number().required(),
         DEFAULT_AUTH_SERVICE_URL: Joi.string().required(),
         DEFAULT_EVENT_SERVICE_URL: Joi.string().required(),
-        NODE_ENV: Joi.string().valid('development', 'production', 'test').required(),
+        NODE_ENV: Joi.string().valid('development', 'production', 'test').default("development"),
       }),
     }),
     JwtAuthModule,
