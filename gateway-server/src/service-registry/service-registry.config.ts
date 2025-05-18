@@ -47,7 +47,9 @@ export const staticServiceRegistry = (): ServiceConfig[] => [
             { path: '/events/:id', method: 'GET', roles: [Role.ADMIN, Role.OPERATOR] },
             { path: '/events/:id', method: 'PUT', roles: [Role.ADMIN, Role.OPERATOR] },
             { path: '/rewards', method: 'POST', roles: [Role.ADMIN, Role.OPERATOR] },
-            { path: '/events/:id', method: 'PUT', roles: [Role.ADMIN, Role.OPERATOR] },
+            { path: '/rewards', method: 'GET', roles: [Role.ADMIN, Role.OPERATOR] },
+            { path: '/rewards/:id', method: 'GET', roles: [Role.ADMIN, Role.OPERATOR] },
+            { path: '/rewards/:id', method: 'PUT', roles: [Role.ADMIN, Role.OPERATOR] },
         ],
         defaultRoles: [Role.ADMIN], //기본적으로 ADMIN만 허용 (위 permissions에 없으면)
     },

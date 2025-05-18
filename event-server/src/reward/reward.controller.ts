@@ -1,10 +1,11 @@
-import {Body, Controller, Post, UseGuards} from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, Put, Query, UseGuards} from '@nestjs/common';
 import {AuthGuard} from "@nestjs/passport";
 import {RolesGuard} from "../common/guards/roles.guard";
 import {Roles} from "../common/decorators/roles.decorator";
 import {Role} from "../common/enums/role.enum";
 import {CreateRewardDto} from "./dto/create-reward.dto";
 import {RewardService} from "./reward.service";
+import {UpdateRewardDto} from "./dto/update-reward.dto";
 
 @Controller('rewards')
 export class RewardController {
@@ -18,6 +19,25 @@ export class RewardController {
     @Roles(Role.ADMIN, Role.OPERATOR)
     create(@Body() createRewardDto: CreateRewardDto) {
         return this.rewardService.create(createRewardDto);
+    }
+
+
+    @Get()
+    @Roles(Role.ADMIN, Role.OPERATOR)
+    findAll(@Query('eventId') eventId?: string) {
+        return this.rewardService.findAll(eventId);
+    }
+
+    @Get(':id')
+    @Roles(Role.ADMIN, Role.OPERATOR)
+    findOne(@Param('id') id: string) {
+        return this.rewardService.findOne(id);
+    }
+
+    @Put(':id')
+    @Roles(Role.ADMIN, Role.OPERATOR)
+    update(@Param('id') id: string, @Body() updateRewardDto: UpdateRewardDto) {
+        return this.rewardService.update(id, updateRewardDto);
     }
 
 }

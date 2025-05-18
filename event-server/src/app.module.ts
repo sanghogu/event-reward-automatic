@@ -5,6 +5,8 @@ import { HealthController } from './health/health.controller';
 import { EventModule } from './event/event.module';
 import * as Joi from "joi";
 import {GatewayModule} from "./gateway/gateway.module";
+import { RewardModule } from './reward/reward.module';
+import { RewardClaimModule } from './reward-claim/reward-claim.module';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import {GatewayModule} from "./gateway/gateway.module";
     }),
     EventModule,
     GatewayModule,
+    RewardModule,
+    RewardClaimModule
   ],
   controllers: [HealthController],
   providers: [],
