@@ -1,0 +1,82 @@
+### Login to Admin
+POST http://localhost:3003/auth-service/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin"
+
+}
+
+### Create Event
+POST http://localhost:3003/event-service/events
+Content-Type: application/json
+Authorization: Bearer {{admin}}
+
+{
+  "name": "테스트",
+  "condition": {
+    "type": "test",
+    "days": 7
+  },
+  "startDate": "2025-05-15",
+  "endDate": "2028-05-15"
+}
+
+### Update Event
+PUT http://localhost:3003/event-service/events/6829cb711df4dc191b5532f5
+Content-Type: application/json
+Authorization: Bearer {{admin}}
+
+{
+  "name": "공노목",
+  "condition": {
+    "type": "loginStreak",
+    "days": 9
+  }
+}
+
+### Create REward
+POST http://localhost:3003/event-service/rewards
+Content-Type: application/json
+Authorization: Bearer {{admin}}
+
+{
+  "eventId": "6829cb711df4dc191b5532f5",
+  "name": "TEST_REWARDS",
+  "type": "POINT",
+  "details": {
+    "POINT": 100
+  },
+  "quantity": 55
+}
+
+### Login to User
+POST http://localhost:3003/auth-service/auth/login
+Content-Type: application/json
+
+{
+  "username": "test",
+  "password": "test"
+
+}
+
+### Create Claim
+POST http://localhost:3003/event-service/reward-claims
+Authorization: Bearer {{user}}
+Content-Type: application/json
+
+{
+  "eventId": "6829cb711df4dc191b5532f5",
+  "rewardId": "6829cbcd1df4dc191b5532fa"
+}
+
+### Get Claim Me
+GET http://localhost:3003/event-service/reward-claims/me
+Authorization: Bearer {{user}}
+Content-Type: application/json
+
+{
+  "eventId": "6829cb711df4dc191b5532f5",
+  "rewardId": "6829cbcd1df4dc191b5532fa"
+}

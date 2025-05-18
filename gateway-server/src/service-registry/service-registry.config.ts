@@ -27,7 +27,7 @@ export const staticServiceRegistry = (): ServiceConfig[] => [
     {
         name: 'AuthService',
         url: process.env.DEFAULT_AUTH_SERVICE_URL!,
-        prefix: '/auth-service', //auth 로 시작하는 url은 기본적으로 여기로
+        prefix: '/auth-service', //auth-service 로 시작하는 url은 기본적으로 여기로
         permissions: [
             { path: '/auth/login', method: 'POST', roles: [Role.PUBLIC] }, // 로그인은 누구나 가능
             { path: '/users/register', method: 'POST', roles: [Role.PUBLIC] }, //사용자 등록은 우선 공개해둠 추후 ADMIN 교체 권고함
@@ -40,7 +40,7 @@ export const staticServiceRegistry = (): ServiceConfig[] => [
     {
         name: 'EventService',
         url: process.env.DEFAULT_EVENT_SERVICE_URL!,
-        prefix: '/event-service', //auth 로 시작하는 url은 기본적으로 여기로
+        prefix: '/event-service', //event-service 로 시작하는 url은 기본적으로 여기로
         permissions: [
             { path: '/events', method: 'POST', roles: [Role.ADMIN, Role.OPERATOR] },
             { path: '/events', method: 'GET', roles: [Role.ADMIN, Role.OPERATOR] },
@@ -50,6 +50,10 @@ export const staticServiceRegistry = (): ServiceConfig[] => [
             { path: '/rewards', method: 'GET', roles: [Role.ADMIN, Role.OPERATOR] },
             { path: '/rewards/:id', method: 'GET', roles: [Role.ADMIN, Role.OPERATOR] },
             { path: '/rewards/:id', method: 'PUT', roles: [Role.ADMIN, Role.OPERATOR] },
+            { path: '/reward-claims', method: 'POST', roles: [Role.USER] },
+            { path: '/reward-claims', method: 'GET', roles: [Role.ADMIN, Role.AUDITOR] },
+            { path: '/reward-claims/me', method: 'GET', roles: [Role.USER] },
+            { path: '/reward-claims/:id', method: 'GET', roles: [Role.ADMIN, Role.AUDITOR] },
         ],
         defaultRoles: [Role.ADMIN], //기본적으로 ADMIN만 허용 (위 permissions에 없으면)
     },
