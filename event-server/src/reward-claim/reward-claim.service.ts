@@ -90,4 +90,21 @@ export class RewardClaimService {
             .exec();
     }
 
+
+    async findClaimById(claimId: string): Promise<RewardClaimDocument> {
+        if (!Types.ObjectId.isValid(claimId)) {
+            throw new BadRequestException('Invalid Claim ID format');
+        }
+        const claim = await this.rewardClaimModel.findById(claimId)
+            .populate('eventId', 'name startDate endDate')
+            .populate('rewardId', 'name type details quantity')
+            .exec();
+
+        if (!claim) {
+            throw new NotFoundException(`Reward claim id ${claimId} not found.`);
+        }
+
+        return claim;
+    }
+
 }

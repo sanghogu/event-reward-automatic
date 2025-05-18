@@ -51,4 +51,12 @@ export class RewardClaimController {
         return this.rewardClaimsService.findMyClaimsByUserId(userId, eventId, status);
     }
 
+    @Get(':id')
+    @Roles(Role.ADMIN, Role.AUDITOR)
+    findOne(
+        @Param('id') id: string,
+    ) {
+        return this.rewardClaimsService.findClaimById(id);
+    }
+
 }
