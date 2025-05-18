@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import {InjectModel} from "@nestjs/mongoose";
 import {User, UserDocument} from "../schema/user.schema";
-import {Model} from "mongoose";
+import {Model, Types} from "mongoose";
 import {ConfigService} from "@nestjs/config";
 import {CreateUserDto} from "../auth/dto/create-user.dto";
 import {Role} from "../common/enums/role.enum";
@@ -27,6 +27,7 @@ export class UserService implements OnModuleInit {
 
     async onModuleInit() {
         await this.createDefaultAdmin();
+        await this.createDefaultUser();
     }
 
     private async createDefaultAdmin() {
@@ -38,10 +39,26 @@ export class UserService implements OnModuleInit {
             const adminUser = new this.userModel({
                 username: adminUsername,
                 passwordHash: hashedPassword,
-                roles: [Role.ADMIN, Role.OPERATOR, Role.USER, Role.AUDITOR],
+                roles: [Role.ADMIN],
             });
             await adminUser.save();
             console.log('Default admin user created.');
+        }
+    }
+
+    private async createDefaultUser() {
+        const username = 'test';
+        const existingAdmin = await this.userModel.findOne({ username: username });
+        if (!existingAdmin) {
+            const password = 'test'
+            const hashedPassword = await hashPassword(password);
+            const defaultUser = new this.userModel({
+                username: username,
+                passwordHash: hashedPassword,
+                roles: [Role.USER],
+            });
+            await defaultUser.save();
+            console.log('Default user created.');
         }
     }
 
@@ -74,8 +91,11 @@ export class UserService implements OnModuleInit {
     }
 
     async findById(id: string): Promise<UserDocument | null> {
+
+        const userIdObj = new Types.ObjectId(id);
+
         try {
-            const result = await this.userModel.findById(id).exec();
+            const result = await this.userModel.findById(new Types.ObjectId(userIdObj)).exec();
             return result;
         } catch (e) {
             return null;
