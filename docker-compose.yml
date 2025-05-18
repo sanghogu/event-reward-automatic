@@ -1,0 +1,62 @@
+version: '3.7'
+services:
+  auth-server:
+    container_name: auth-server
+    build:
+      context: ./auth-server
+    environment:
+      NODE_ENV: production
+    networks:
+      - maple-network
+    depends_on:
+      - auth-mongo
+  event-server:
+    container_name: event-server
+    build:
+      context: ./event-server
+    environment:
+      NODE_ENV: production
+    networks:
+      - maple-network
+    depends_on:
+      - event-mongo
+  gateway-server:
+    container_name: gateway-server
+    build:
+      context: ./gateway-server
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+    networks:
+      - maple-network
+  event-mongo:
+    image: mongo:latest
+    networks:
+      - maple-network
+    volumes:
+      - mongo-event-data:/data/db
+    container_name: event-mongo
+    environment:
+       MONGO_PORT: 27017
+       MONGO_INITDB_ROOT_USERNAME: maple
+       MONGO_INITDB_ROOT_PASSWORD: maple
+       MONGO_INITDB_DATABASE: maple-event-db
+  auth-mongo:
+    image: mongo:latest
+    networks:
+      - maple-network
+    volumes:
+      - mongo-data:/data/db
+    container_name: 'auth-mongo'
+    environment:
+       MONGO_PORT: 27017
+       MONGO_INITDB_ROOT_USERNAME: maple
+       MONGO_INITDB_ROOT_PASSWORD: maple
+       MONGO_INITDB_DATABASE: maple-db
+
+networks:
+  maple-network:
+volumes:
+  mongo-data:
+  mongo-event-data:
