@@ -5,7 +5,7 @@ services:
     ports:
       - 27018:27017
     volumes:
-      - mongo-event-data:/data/db
+      - mongo-event-data-dev:/data/db
     container_name: event-mongo
     environment:
        MONGO_PORT: 27017
@@ -17,7 +17,7 @@ services:
     ports: 
       - 27017:27017
     volumes:
-      - mongo-data:/data/db
+      - mongo-data-dev:/data/db
     container_name: 'auth-mongo'
     environment:
        MONGO_PORT: 27017
@@ -26,5 +26,5 @@ services:
        MONGO_INITDB_DATABASE: maple-db
 
 volumes:
-  mongo-data:
-  mongo-event-data:
+  mongo-data-dev:
+  mongo-event-data-dev:
