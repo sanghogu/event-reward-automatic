@@ -14,7 +14,6 @@ import { RewardClaimModule } from './reward-claim/reward-claim.module';
       isGlobal: true,
       envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`],
       validationSchema: Joi.object({
-        JWT_SECRET: Joi.string().required(),
         DB_URI: Joi.string().required(),
         DB_USERNAME: Joi.string().required(),
         DB_PASSWORD: Joi.string().required(),
