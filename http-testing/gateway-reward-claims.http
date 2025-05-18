@@ -1,0 +1,13 @@
+### GET All Claims
+GET http://localhost:3003/event-service/reward-claims
+Authorization: Bearer {{admin}}
+
+### Create Claims
+POST http://localhost:3003/event-service/reward-claims
+Authorization: Bearer {{user}}
+Content-Type: application/json
+
+{
+  "eventId": "6829af53b06aaf3805d9a48c",
+  "rewardId": "6829af64b06aaf3805d9a490"
+}
