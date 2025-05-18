@@ -20,6 +20,7 @@ import {Role} from "../common/enums/role.enum";
 import {Response} from "express";
 import {GatewayGuard} from "../gateway/gateway.guard";
 
+@UseGuards(GatewayGuard, RolesGuard)
 @Controller('users')
 export class UserController {
 
@@ -28,6 +29,7 @@ export class UserController {
     constructor(private readonly userService: UserService) {
     }
 
+    @Roles(Role.ADMIN)
     @Post("register")
     @HttpCode(201)
     async register(@Body() createUserDto: CreateUserDto) {
@@ -37,15 +39,13 @@ export class UserController {
         return this.userService.create(createUserDto);
     }
 
-    @UseGuards(GatewayGuard)
+    @Roles(Role.USER)
     @Get('me')
     getProfile(@Request() req) {
         const { passwordHash, __v, ...userProfile } = req.user.toObject(); // req.user가 UserDocument 인스턴스라고 가정
         return userProfile;
     }
 
-    // ADMIN만 사용자명으로 조회 가능
-    @UseGuards(GatewayGuard, RolesGuard)
     @Roles(Role.ADMIN)
     @Get(':username')
     async getProfileByUsername(
@@ -68,8 +68,7 @@ export class UserController {
             res.status(200).send(userProfile);
         }
     }
-    // ADMIN만 사용자 역할 변경 가능
-    @UseGuards(GatewayGuard, RolesGuard)
+
     @Roles(Role.ADMIN)
     @Put(':username/roles')
     @HttpCode(HttpStatus.OK)

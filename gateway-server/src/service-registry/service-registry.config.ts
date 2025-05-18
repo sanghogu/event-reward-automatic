@@ -31,7 +31,7 @@ export const staticServiceRegistry = (): ServiceConfig[] => [
         permissions: [
             { path: '/health', method: "GET", roles: [Role.PUBLIC]},
             { path: '/auth/login', method: 'POST', roles: [Role.PUBLIC] }, // 로그인은 누구나 가능
-            { path: '/users/register', method: 'POST', roles: [Role.PUBLIC] }, //사용자 등록은 우선 공개해둠 추후 ADMIN 교체 권고함
+            { path: '/users/register', method: 'POST', roles: [Role.ADMIN] }, //사용자 등록은 우선 공개해둠 추후 ADMIN 교체 권고함
             { path: '/users/me', method: 'GET', roles: [Role.USER, Role.OPERATOR, Role.AUDITOR, Role.ADMIN] }, //인증된 모든 사용자
             { path: '/users/:username', method: 'GET', roles: [Role.ADMIN] }, // 또는 본인 확인 로직 추가
             { path: '/users/:username/roles', method: 'PUT', roles: [Role.ADMIN] },
