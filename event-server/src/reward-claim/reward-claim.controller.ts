@@ -43,12 +43,12 @@ export class RewardClaimController {
     @Get('me')
     @Roles(Role.USER)
     findMyClaims(
-        @Req() req: {userId: string} & Request,
+        @Req() req: {user: {userId: string}} & Request,
         @Query('eventId') eventId?: string,
         @Query('status') status?: ClaimStatus,
     ) {
-        const { userId } = req;
-        return this.rewardClaimsService.findMyClaimsByUserId(userId, eventId, status);
+        const { user } = req;
+        return this.rewardClaimsService.findMyClaimsByUserId(user.userId, eventId, status);
     }
 
     @Get(':id')
