@@ -29,6 +29,7 @@ export const staticServiceRegistry = (): ServiceConfig[] => [
         url: process.env.DEFAULT_AUTH_SERVICE_URL!,
         prefix: '/auth-service', //auth-service 로 시작하는 url은 기본적으로 여기로
         permissions: [
+            { path: '/health', method: "GET", roles: [Role.PUBLIC]},
             { path: '/auth/login', method: 'POST', roles: [Role.PUBLIC] }, // 로그인은 누구나 가능
             { path: '/users/register', method: 'POST', roles: [Role.PUBLIC] }, //사용자 등록은 우선 공개해둠 추후 ADMIN 교체 권고함
             { path: '/users/me', method: 'GET', roles: [Role.USER, Role.OPERATOR, Role.AUDITOR, Role.ADMIN] }, //인증된 모든 사용자
@@ -42,6 +43,7 @@ export const staticServiceRegistry = (): ServiceConfig[] => [
         url: process.env.DEFAULT_EVENT_SERVICE_URL!,
         prefix: '/event-service', //event-service 로 시작하는 url은 기본적으로 여기로
         permissions: [
+            { path: '/health', method: "GET", roles: [Role.PUBLIC]},
             { path: '/events', method: 'POST', roles: [Role.ADMIN, Role.OPERATOR] },
             { path: '/events', method: 'GET', roles: [Role.ADMIN, Role.OPERATOR] },
             { path: '/events/:id', method: 'GET', roles: [Role.ADMIN, Role.OPERATOR] },

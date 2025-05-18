@@ -9,14 +9,13 @@ import * as Joi from "joi";
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.development'],
-      ignoreEnvFile: process.env.NODE_ENV === 'production',
+      envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`],
       validationSchema: Joi.object({
         JWT_SECRET: Joi.string().required(),
         PROXY_HTTP_TIMEOUT_MS: Joi.number().required(),
         DEFAULT_AUTH_SERVICE_URL: Joi.string().required(),
         DEFAULT_EVENT_SERVICE_URL: Joi.string().required(),
-        NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
+        NODE_ENV: Joi.string().valid('development', 'production', 'test').required(),
       }),
     }),
     JwtAuthModule,
