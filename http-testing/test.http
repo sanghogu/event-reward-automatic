@@ -3,8 +3,8 @@ POST http://localhost:3000/auth-service/auth/login
 Content-Type: application/json
 
 {
-  "username": "admin",
-  "password": "admin"
+  "username": "test",
+  "password": "test"
 
 }
 
@@ -72,6 +72,6 @@ Content-Type: application/json
 }
 
 ### Get Claim Me
-GET http://localhost:3003/event-service/reward-claims/me?eventId=6829db0f181a450c46e2621a
+GET http://localhost:3000/event-service/reward-claims/me?eventId=6829db0f181a450c46e2621a
 Authorization: Bearer {{user}}
 Content-Type: application/json

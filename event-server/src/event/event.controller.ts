@@ -19,6 +19,7 @@ import {Role} from "../common/enums/role.enum";
 import {EventStatus} from "../common/enums/event-status.enum";
 import {UpdateEventDto} from "./dto/update-event.dto";
 
+@UseGuards(GatewayGuard, RolesGuard)
 @Controller('events')
 export class EventController {
 
@@ -28,7 +29,6 @@ export class EventController {
     }
 
     @Post()
-    @UseGuards(GatewayGuard, RolesGuard)
     @Roles(Role.ADMIN, Role.OPERATOR)
     create(@Body() createEventDto: CreateEventDto) {
         this.logger.log(`create: ${createEventDto}}`);
@@ -36,7 +36,6 @@ export class EventController {
     }
 
     @Get()
-    @UseGuards(GatewayGuard, RolesGuard)
     @Roles(Role.ADMIN, Role.OPERATOR)
     findAll(
         @Query('status') status?: EventStatus,
@@ -45,14 +44,12 @@ export class EventController {
         return this.eventsService.findAll(status, isActive);
     }
 
-    @UseGuards(GatewayGuard, RolesGuard)
     @Roles(Role.ADMIN, Role.OPERATOR)
     @Get(':id')
     findOne(@Param('id') id: string) {
         return this.eventsService.findOne(id);
     }
 
-    @UseGuards(GatewayGuard, RolesGuard)
     @Roles(Role.ADMIN, Role.OPERATOR)
     @Put(':id')
     update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {

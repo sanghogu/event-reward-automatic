@@ -7,7 +7,6 @@ import {Role} from "../common/enums/role.enum";
 import {CreateRewardClaimDto} from "./dto/create-reward-claim.dto";
 import {ClaimStatus} from "../common/enums/claim-status.enum";
 import {Request} from "express";
-import {UpdateClaimStatusDto} from "./dto/update-reward-claim.dto";
 
 @UseGuards(GatewayGuard, RolesGuard)
 @Controller('reward-claims')
