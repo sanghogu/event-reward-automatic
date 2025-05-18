@@ -11,3 +11,7 @@ export interface InviteFriendsCondition extends EventCondition {
     type: 'inviteFriends';
     count: number;
 }
+export interface QuestClearCondition extends EventCondition {
+    type: 'questClear';
+    questId: string;
+}

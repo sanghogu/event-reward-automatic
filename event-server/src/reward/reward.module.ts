@@ -6,13 +6,14 @@ import {Reward, RewardSchema} from "../schema/reward.schema";
 import {EventModule} from "../event/event.module";
 
 @Module({
-  imports: [
+    imports: [
       MongooseModule.forFeature([
         {name: Reward.name, schema: RewardSchema}
       ]),
       EventModule
-  ],
-  controllers: [RewardController],
-  providers: [RewardService],
+    ],
+    controllers: [RewardController],
+    providers: [RewardService],
+    exports: [RewardService]
 })
 export class RewardModule {}

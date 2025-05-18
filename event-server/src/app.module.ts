@@ -40,6 +40,6 @@ import { RewardClaimModule } from './reward-claim/reward-claim.module';
   ],
   controllers: [HealthController],
   providers: [],
-  exports: [EventModule]
+  exports: [EventModule, RewardModule]
 })
 export class AppModule {}

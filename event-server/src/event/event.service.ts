@@ -64,4 +64,45 @@ export class EventService {
         return updatedEvent;
     }
 
+    //이벤트 조건 검증 로직 이벤트 서비스에 만드는게
+    async checkEventCondition(userId: string, event: EventDocument): Promise<boolean> {
+        if (!userId) {
+            console.warn('event condition UserId not valid');
+            return false;
+        }
+
+        this.logger.log(`event condition event "${event.name}" (ID: ${event._id}) for user "${userId}"`);
+        this.logger.log('Event condition details:', event.condition);
+
+        const { type, ...params } = event.condition;
+
+        this.logger.log(`Event condition type: ${JSON.stringify(params, null, 2)}`);
+
+        //모든 이벤트는 타입만 체크하고 일단 통과 (실제 로직으로 대체 필요함)
+        switch (type) {
+            case 'loginStreak':
+                //const userLoginDays = await this.userActivityService.getLoginStreak(userId);
+                //return userLoginDays >= params.days;
+                return true;
+            case 'inviteFriends':
+                return true;
+            case 'questClear':
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    async findActiveEventById(eventId: string): Promise<EventDocument | null> {
+        if (!Types.ObjectId.isValid(eventId)) return null;
+        const now = new Date();
+        return this.eventModel.findOne({
+            _id: eventId,
+            status: EventStatus.ACTIVE,
+            isActive: true,
+            startDate: { $lte: now },
+            endDate: { $gte: now },
+        }).exec();
+    }
+
 }
