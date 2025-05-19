@@ -39,7 +39,7 @@ export class UserController {
         return this.userService.create(createUserDto);
     }
 
-    @Roles(Role.USER)
+    @Roles(Role.USER, Role.ADMIN)
     @Get('me')
     getProfile(@Request() req) {
         const { passwordHash, __v, ...userProfile } = req.user.toObject(); // req.user가 UserDocument 인스턴스라고 가정

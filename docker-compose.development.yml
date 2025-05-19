@@ -1,24 +1,24 @@
 version: '3.7'
 services:
-  event-mongo:
+  event-mongo-dev:
     image: mongo:latest
     ports:
       - 27018:27017
     volumes:
       - mongo-event-data-dev:/data/db
-    container_name: event-mongo
+    container_name: event-mongo-dev
     environment:
        MONGO_PORT: 27017
        MONGO_INITDB_ROOT_USERNAME: maple
        MONGO_INITDB_ROOT_PASSWORD: maple
        MONGO_INITDB_DATABASE: maple-event-db
-  auth-mongo:
+  auth-mongo-dev:
     image: mongo:latest
     ports: 
       - 27017:27017
     volumes:
       - mongo-data-dev:/data/db
-    container_name: 'auth-mongo'
+    container_name: auth-mongo-dev
     environment:
        MONGO_PORT: 27017
        MONGO_INITDB_ROOT_USERNAME: maple
