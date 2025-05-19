@@ -70,8 +70,9 @@ Gateway는 인증된 사용자의 ID (`X-User-Id`)와 쉼표로 구분된 역할
     * 각 테스트 실행 전(`beforeAll`)과 후(`afterAll`)에 테스트 데이터를 생성하고 정리합니다.
     * 본 테스트는 .env.test 프로파일로 실행되며 실행 시에는 root 폴더의 docker-compose.development.yml 을 up 시켜주세요.
     ```bash
-        docker compose -f .\docker-compose.development.yml up -d
+        docker compose -f ./docker-compose.development.yml up -d
     ```
+   * 각서비스의 루트폴더로 이동하여 ```npm run test:e2e``` 커맨드 실행
 2. **수동 API 테스트 (API 클라이언트 사용)**:
     * 애플리케이션을 도커로 실행시켜줍니다. (하단 애플리케이션 실행 참고)
     * Postman과 같은 API 클라이언트를 사용하여 Gateway (`http://localhost:3000`)를 통해 API를 직접 호출하여 테스트합니다.
@@ -116,7 +117,7 @@ API 테스트 및 시스템에 사용할 수 있습니다.
 
 * **명령어 2-2 (개발용 의존성 시작)**:
   ```bash
-    docker compose -f .\docker-compose.development.yml up -d
+    docker compose -f ./docker-compose.development.yml up -d
   ```
     * 개발용 서버 실행하는데 필요한 DB만 실행됩니다.
     * 해당 명령어 실행 후 각 서비스 루트에서 ```npm run start:dev``` 실행하면 직접 소스 변경하며 테스트 가능
