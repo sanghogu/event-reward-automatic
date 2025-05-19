@@ -68,10 +68,7 @@ export class RewardClaimService {
 
         const event = await this.eventService.findActiveEventById(createRewardClaimDto.eventId);
         if (!event) {
-            throw new NotFoundException(`event ID ${createRewardClaimDto.eventId} not found or not active.`);
-        }
-        if (event.status !== EventStatus.ACTIVE || !event.isActive) {
-            throw new BadRequestException(`Event ID ${event.id} is not currently active.`);
+            throw new NotFoundException(`event ID ${createRewardClaimDto.eventId} no active events found.`);
         }
 
         const reward = await this.rewardService.findOne(createRewardClaimDto.rewardId);
