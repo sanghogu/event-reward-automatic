@@ -10,7 +10,6 @@ export class GatewayGuard extends AuthGuard("gateway") {
   canActivate(
     context: ExecutionContext,
   ) {
-    console.log("#############")
     return super.canActivate(context);
   }
 
