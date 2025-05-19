@@ -26,8 +26,10 @@ export class UserService implements OnModuleInit {
     }
 
     async onModuleInit() {
-        await this.createDefaultAdmin();
-        await this.createDefaultUser();
+        if(process.env.NODE_ENV !== 'test') {
+            await this.createDefaultAdmin();
+            await this.createDefaultUser();
+        }
     }
 
     private async createDefaultAdmin() {
