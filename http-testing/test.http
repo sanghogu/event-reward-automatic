@@ -24,7 +24,7 @@ Authorization: Bearer {{admin}}
 }
 
 ### Update Event
-PUT http://localhost:3000/event-service/events/682ab16b9d2597ef593daa09
+PUT http://localhost:3000/event-service/events/682bd441570a7e743c1eb0fd
 Content-Type: application/json
 Authorization: Bearer {{admin}}
 
@@ -35,7 +35,7 @@ Authorization: Bearer {{admin}}
     "days": 9
   },
   "status": "ACTIVE",
-  "endDate": "2025-05-15"
+  "endDate": "2026-05-15"
 }
 
 ### Create REward
@@ -44,7 +44,7 @@ Content-Type: application/json
 Authorization: Bearer {{admin}}
 
 {
-  "eventId": "682ab16b9d2597ef593daa09",
+  "eventId": "682bd441570a7e743c1eb0fd",
   "name": "TEST_REWARDS",
   "type": "POINT",
   "details": {
@@ -69,11 +69,11 @@ Authorization: Bearer {{user}}
 Content-Type: application/json
 
 {
-  "eventId": "682ab16b9d2597ef593daa09",
-  "rewardId": "682ab6438ff5cc8eb628a198"
+  "eventId": "682bd441570a7e743c1eb0fd",
+  "rewardId": "682bd44f570a7e743c1eb102"
 }
 
 ### Get Claim Me
-GET http://localhost:3000/event-service/reward-claims/me?eventId=6829db0f181a450c46e2621a
+GET http://localhost:3000/event-service/reward-claims/me?eventId=682bd441570a7e743c1eb0fd
 Authorization: Bearer {{user}}
 Content-Type: application/json

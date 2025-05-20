@@ -214,7 +214,7 @@ API 테스트 및 시스템에 사용할 수 있습니다.
         * `name` (string, 필수)
         * `description` (string, 선택적)
         * `condition` (object, 필수): 이벤트 조건 객체 (예: `{"type": "loginStreak", "days": 7}`)
-            * `type` (string, 필수): 조건 유형
+            * `type` (string, 필수): 조건 유형 허용되는 타입 외에는 모두 reject 허용 타입: (`loginStreak`, `questClear`, `inviteFriends`)
             * `[key:string]:any`: 조건 유형에 따른 추가 파라미터
         * `startDate` (string, 필수, 형식: `YYYY-MM-DD`, 예: `2025-05-20`)
         * `endDate` (string, 필수, 형식: `YYYY-MM-DD`, 예: `2025-06-01`)
